@@ -1,73 +1,82 @@
 from collections import deque
 
-class StudentGradingSystem:
+
+class CourseRegistrationSystem:
+    
     def __init__(self):
-        self.grade_stack = []   # Stack for undo operations (grades to undo)
-        self.pending_queue = deque()  # Queue for pending grading submissions
-        self.final_grades = []  # List to store all finalized student grades
+        self.available_courses = [] 
+        self.registration_requests = deque()  
+        self.undo_stack = [] 
 
-    def add_submission(self, student_id):
-        """Add a new submission to the queue of pending grades."""
-        self.pending_queue.append(student_id)
-        print(f"Submission added for student {student_id}.")
+    def add_course(self, course_name):
+        self.available_courses.append(course_name)
+        print(f"Course '{course_name}' added to available courses.")
 
-    def grade_next_submission(self, grade):
-        """Grade the next student in the pending queue and add to stack for undo option."""
-        if self.pending_queue:
-            student_id = self.pending_queue.popleft()
-            self.grade_stack.append((student_id, grade))  # Add grade to stack for potential undo
-            self.final_grades.append((student_id, grade))
-            print(f"Graded student {student_id} with grade {grade}.")
+    def show_available_courses(self):
+        if self.available_courses:
+            print("\nAvailable Courses:")
+            for idx, course in enumerate(self.available_courses, 1):
+                print(f"{idx}. {course}")
         else:
-            print("No pending submissions to grade.")
+            print("\nNo courses available.")
 
-    def undo_last_grade(self):
-        """Undo the last graded submission."""
-        if self.grade_stack:
-            student_id, grade = self.grade_stack.pop()  # Undo the last grade
-            self.final_grades.remove((student_id, grade))  # Remove from final grades list
-            print(f"Undoing grade {grade} for student {student_id}.")
+    def register_course(self, course_name):
+        if course_name in self.available_courses:
+            self.registration_requests.append(course_name)
+            self.undo_stack.append(course_name)
+            print(f"Course '{course_name}' registered successfully.")
         else:
-            print("No grades to undo.")
+            print(f"Course '{course_name}' is not available for registration.")
 
-    def view_final_grades(self):
-        """Display all finalized student grades."""
-        if self.final_grades:
-            print("Final Grades List:")
-            for student_id, grade in self.final_grades:
-                print(f"Student {student_id}: {grade}")
+    def process_registration(self):
+        if self.registration_requests:
+            course_name = self.registration_requests.popleft()
+            print(f"Processing registration for '{course_name}'...")
         else:
-            print("No final grades to display.")
+            print("No registration requests to process.")
 
-    def view_pending_submissions(self):
-        """Display all pending submissions."""
-        if self.pending_queue:
-            print("Pending Submissions:")
-            for student_id in self.pending_queue:
-                print(f"Student {student_id}")
+    def undo_registration(self):
+        if self.undo_stack:
+            last_registered_course = self.undo_stack.pop()
+            print(f"Undo registration for '{last_registered_course}'.")
         else:
-            print("No pending submissions.")
-            
-# Example usage:
-grading_system = StudentGradingSystem()
+            print("No registrations to undo.")
 
-# Add submissions
-grading_system.add_submission(101)
-grading_system.add_submission(102)
-grading_system.add_submission(103)
+# Interactive menu
+def menu():
+    registration_system = CourseRegistrationSystem()
 
-# Grade the first two submissions
-grading_system.grade_next_submission(90)  # Grades student 101
-grading_system.grade_next_submission(85)  # Grades student 102
+    while True:
+        print("\n1. Add Course")
+        print("2. Show Available Courses")
+        print("3. Register for a Course")
+        print("4. Process Registration")
+        print("5. Undo Last Registration")
+        print("6. Exit")
 
-# Undo the last grading action
-grading_system.undo_last_grade()
+        choice = input("\nEnter your choice: ")
 
-# View final grades and pending submissions
-grading_system.view_final_grades()
-grading_system.view_pending_submissions()
+        if choice == '1':
+            course_name = input("Enter course name to add: ")
+            registration_system.add_course(course_name)
 
-# Grade the remaining submissions
-grading_system.grade_next_submission(75)  # Grades student 103
+        elif choice == '2':
+            registration_system.show_available_courses()
 
-grading_system.view_final_grades()
+        elif choice == '3':
+            course_name = input("Enter course name to register: ")
+            registration_system.register_course(course_name)
+
+        elif choice == '4':
+            registration_system.process_registration()
+
+        elif choice == '5':
+            registration_system.undo_registration()
+
+        elif choice == '6':
+            print("Exiting the system. Goodbye!")
+            break
+
+        else:
+            print("Invalid choice, please try again.")
+menu()
